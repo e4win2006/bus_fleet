@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FleetVision - Smart Fleet Management Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <span class="logo-icon">🚌</span>
+                <span class="logo-text">FleetVision</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#benefits">Benefits</a>
+                <a href="dashboard.php" class="btn-primary-small">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">Prototype Beta v1</div>
+                <h1 class="hero-title">Everything Your Fleet Needs,<br><span class="gradient-text">At a Glance</span></h1>
+                <p class="hero-subtitle">Stop juggling spreadsheets and phone calls. Get complete visibility of your fleet operations with real-time insights, maintenance tracking, and trip management—all in one powerful dashboard.</p>
+                <div class="hero-buttons">
+                    <a href="register.php" class="btn-primary">Start Free Trial</a>
+                    <a href="#features" class="btn-secondary">See How It Works</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Active Fleets</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Vehicles Managed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">35%</div>
+                        <div class="stat-label">Cost Reduction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Preview -->
+    <section class="dashboard-preview">
+        <div class="container">
+            <div class="dashboard-mockup">
+                <div class="mockup-header">
+                    <div class="mockup-controls">
+                        <span class="control-dot red"></span>
+                        <span class="control-dot yellow"></span>
+                        <span class="control-dot green"></span>
+                    </div>
+                    <div class="mockup-title">FleetVision Dashboard</div>
+                </div>
+                <div class="mockup-content">
+                    <div class="mockup-sidebar">
+                        <div class="sidebar-item active">Dashboard</div>
+                        <div class="sidebar-item">Fleet Overview</div>
+                        <div class="sidebar-item">Trips</div>
+                        <div class="sidebar-item">Maintenance</div>
+                        <div class="sidebar-item">Reports</div>
+                    </div>
+                    <div class="mockup-main">
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-label">Total Buses</div>
+                                <div class="kpi-value">48</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-label">Active Today</div>
+                                <div class="kpi-value">42</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-label">Trips Today</div>
+                                <div class="kpi-value">156</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-label">Revenue Today</div>
+                                <div class="kpi-value">₹4.2K</div>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Powerful Features Built for Fleet Operators</h2>
+                <p class="section-subtitle">Everything you need to manage your fleet efficiently, in one intuitive platform</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Real-Time Dashboard</h3>
+                    <p class="feature-description">Monitor all critical metrics at a glance—active vehicles, trips, revenue, fuel consumption, and maintenance alerts in one unified view.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚍</div>
+                    <h3 class="feature-title">Fleet Overview</h3>
+                    <p class="feature-description">Track every vehicle's status instantly. See which buses are active, idle, or in maintenance. Identify issues before they become problems.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3 class="feature-title">Trip Management</h3>
+                    <p class="feature-description">Complete visibility of all trips—routes, schedules, assignments, and status updates. No more manual tracking or missed dispatches.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3 class="feature-title">Maintenance Tracking</h3>
+                    <p class="feature-description">Never miss scheduled maintenance again. Get clear visibility of upcoming and overdue services. Reduce breakdowns and extend vehicle life.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⛽</div>
+                    <h3 class="feature-title">Fuel Monitoring</h3>
+                    <p class="feature-description">Track fuel consumption across your fleet. Identify inefficiencies and reduce operating costs with data-driven insights.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3 class="feature-title">Smart Reports</h3>
+                    <p class="feature-description">Generate daily and weekly reports instantly. Export to CSV or PDF. Make informed decisions backed by real data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="benefits-content">
+                <div class="benefits-text">
+                    <h2 class="section-title">Stop Fighting Fires.<br>Start Managing Proactively.</h2>
+                    <div class="benefit-list">
+                        <div class="benefit-item">
+                            <div class="benefit-check">✓</div>
+                            <div>
+                                <h4>Reduce Downtime by 40%</h4>
+                                <p>Spot maintenance issues early and keep your fleet on the road longer</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-check">✓</div>
+                            <div>
+                                <h4>Cut Operational Costs</h4>
+                                <p>Optimize routes, monitor fuel usage, and eliminate wasteful practices</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-check">✓</div>
+                            <div>
+                                <h4>Save 10+ Hours Per Week</h4>
+                                <p>No more manual Excel tracking or endless phone calls to drivers</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-check">✓</div>
+                            <div>
+                                <h4>Make Data-Driven Decisions</h4>
+                                <p>Access real insights instead of relying on gut feeling or outdated reports</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="benefits-visual">
+                    <div class="visual-card">
+                        <div class="visual-header">Before FleetVision</div>
+                        <ul class="visual-list negative">
+                            <li>Scattered data across spreadsheets</li>
+                            <li>Reactive problem solving</li>
+                            <li>Missed maintenance schedules</li>
+                            <li>Constant phone tag with drivers</li>
+                            <li>No visibility into operations</li>
+                        </ul>
+                    </div>
+                    <div class="visual-card highlight">
+                        <div class="visual-header">After FleetVision</div>
+                        <ul class="visual-list positive">
+                            <li>All data in one unified dashboard</li>
+                            <li>Proactive fleet management</li>
+                            <li>Automated maintenance alerts</li>
+                            <li>Real-time status updates</li>
+                            <li>Complete operational visibility</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Trusted by Fleet Operators Worldwide</h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"FleetVision transformed how we manage our 50+ vehicle fleet. We've reduced maintenance costs by 30% and our dispatch efficiency is through the roof."</p>
+                    <div class="testimonial-author">
+                        <strong>Michael Chen</strong>
+                        <span>Operations Manager, TransCity Lines</span>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"Finally, a system that actually works. No complicated setup, no tech headaches. Just simple, powerful fleet management that saves us time and money."</p>
+                    <div class="testimonial-author">
+                        <strong>Sarah Martinez</strong>
+                        <span>Fleet Owner, Metro Express</span>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"The dashboard gives me everything I need in seconds. I can't imagine going back to spreadsheets and manual tracking. Game changer."</p>
+                    <div class="testimonial-author">
+                        <strong>David Thompson</strong>
+                        <span>Dispatch Manager, CityLink Transport</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="contact" class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Transform Your Fleet Operations?</h2>
+                <p class="cta-subtitle">Join hundreds of fleet operators who've streamlined their operations with FleetVision</p>
+                <div class="cta-buttons">
+                    <a href="register.php" class="btn-primary-large">Start Your Free 14-Day Trial</a>
+                    <p class="cta-note">No credit card required • Setup in 5 minutes • Cancel anytime</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <span class="logo-icon">🚌</span>
+                        <span class="logo-text">FleetVision</span>
+                    </div>
+                    <p class="footer-tagline">Smart fleet management,<br>simplified for operators.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Prototype Beta v1</h4>
+                    <a href="#features">Features</a>
+                    <a href="#">Pricing</a>
+                    <a href="register.php">Beta Access</a>
+                    <a href="#">Documentation</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#">Help Center</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Security</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 FleetVision. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

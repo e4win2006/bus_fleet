@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Overview - FleetVision</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🚌</span>
+                    <span class="logo-text">FleetVision</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="fleet-overview.html" class="nav-item active">
+                    <span class="nav-icon">🚍</span>
+                    <span class="nav-label">Fleet Overview</span>
+                </a>
+                <a href="trips.html" class="nav-item">
+                    <span class="nav-icon">🗺️</span>
+                    <span class="nav-label">Trips</span>
+                </a>
+                <a href="maintenance.html" class="nav-item">
+                    <span class="nav-icon">🔧</span>
+                    <span class="nav-label">Maintenance</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Reports</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-details">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Fleet Manager</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="page-title">Fleet Overview</h1>
+                    <p class="page-subtitle">Monitor and manage all your vehicles</p>
+                </div>
+                <div class="header-right">
+                    <div class="date-display">📅 Monday, Dec 23, 2024</div>
+                </div>
+            </header>
+
+            <!-- Fleet Overview Section -->
+            <section class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">All Vehicles</h2>
+                    <div class="section-actions">
+                        <input type="text" class="search-input" placeholder="Search buses...">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Bus Number</th>
+                                <th>Status</th>
+                                <th>Current Route</th>
+                                <th>Last Trip</th>
+                                <th>Next Maintenance</th>
+                                <th>Total Distance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>BUS-001</strong></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Route A - Downtown</td>
+                                <td>Today, 2:30 PM</td>
+                                <td>Jan 15, 2025</td>
+                                <td>45,230 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-002</strong></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Route B - Airport</td>
+                                <td>Today, 1:45 PM</td>
+                                <td>Jan 22, 2025</td>
+                                <td>38,920 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-003</strong></td>
+                                <td><span class="status-badge maintenance">In Maintenance</span></td>
+                                <td>-</td>
+                                <td>Dec 20, 2024</td>
+                                <td>Dec 28, 2024</td>
+                                <td>52,140 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-004</strong></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Route C - Suburbs</td>
+                                <td>Today, 3:15 PM</td>
+                                <td>Jan 8, 2025</td>
+                                <td>41,680 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-005</strong></td>
+                                <td><span class="status-badge idle">Idle</span></td>
+                                <td>-</td>
+                                <td>Dec 22, 2024</td>
+                                <td>Jan 5, 2025</td>
+                                <td>36,450 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-006</strong></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Route D - City Center</td>
+                                <td>Today, 2:00 PM</td>
+                                <td>Jan 18, 2025</td>
+                                <td>44,720 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-007</strong></td>
+                                <td><span class="status-badge maintenance">In Maintenance</span></td>
+                                <td>-</td>
+                                <td>Dec 19, 2024</td>
+                                <td>Dec 26, 2024</td>
+                                <td>48,900 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-008</strong></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Route A - Downtown</td>
+                                <td>Today, 3:45 PM</td>
+                                <td>Jan 12, 2025</td>
+                                <td>39,560 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-009</strong></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Route B - Airport</td>
+                                <td>Today, 1:20 PM</td>
+                                <td>Jan 25, 2025</td>
+                                <td>42,890 km</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BUS-010</strong></td>
+                                <td><span class="status-badge idle">Idle</span></td>
+                                <td>-</td>
+                                <td>Dec 21, 2024</td>
+                                <td>Jan 10, 2025</td>
+                                <td>35,120 km</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

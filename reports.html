@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - FleetVision</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🚌</span>
+                    <span class="logo-text">FleetVision</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="fleet-overview.html" class="nav-item">
+                    <span class="nav-icon">🚍</span>
+                    <span class="nav-label">Fleet Overview</span>
+                </a>
+                <a href="trips.html" class="nav-item">
+                    <span class="nav-icon">🗺️</span>
+                    <span class="nav-label">Trips</span>
+                </a>
+                <a href="maintenance.html" class="nav-item">
+                    <span class="nav-icon">🔧</span>
+                    <span class="nav-label">Maintenance</span>
+                </a>
+                <a href="reports.html" class="nav-item active">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Reports</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-details">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Fleet Manager</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="page-title">Reports</h1>
+                    <p class="page-subtitle">Generate and export fleet performance reports</p>
+                </div>
+                <div class="header-right">
+                    <div class="date-display">📅 Monday, Dec 23, 2024</div>
+                </div>
+            </header>
+
+            <!-- Reports Section -->
+            <section class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Available Reports</h2>
+                    <div class="section-actions">
+                        <select class="filter-select">
+                            <option>This Week</option>
+                            <option>Last Week</option>
+                            <option>This Month</option>
+                            <option>Last Month</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3 class="report-title">Daily Summary</h3>
+                            <span class="report-date">Dec 23, 2024</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat">
+                                <span class="stat-label">Total Trips</span>
+                                <span class="stat-value">156</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Active Buses</span>
+                                <span class="stat-value">42</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Revenue</span>
+                                <span class="stat-value">₹4,280</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Fuel Consumed</span>
+                                <span class="stat-value">1,240L</span>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <a href="#" class="btn-export">Export CSV</a>
+                            <a href="#" class="btn-export">Export PDF</a>
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3 class="report-title">Weekly Summary</h3>
+                            <span class="report-date">Dec 16 - Dec 23, 2024</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat">
+                                <span class="stat-label">Total Trips</span>
+                                <span class="stat-value">1,092</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Avg Active Buses</span>
+                                <span class="stat-value">41</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Revenue</span>
+                                <span class="stat-value">₹29,960</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Fuel Consumed</span>
+                                <span class="stat-value">8,680L</span>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <a href="#" class="btn-export">Export CSV</a>
+                            <a href="#" class="btn-export">Export PDF</a>
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3 class="report-title">Monthly Summary</h3>
+                            <span class="report-date">December 2024</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat">
+                                <span class="stat-label">Total Trips</span>
+                                <span class="stat-value">4,368</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Avg Active Buses</span>
+                                <span class="stat-value">40</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Revenue</span>
+                                <span class="stat-value">₹119,840</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Fuel Consumed</span>
+                                <span class="stat-value">34,720L</span>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <a href="#" class="btn-export">Export CSV</a>
+                            <a href="#" class="btn-export">Export PDF</a>
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3 class="report-title">Fleet Performance</h3>
+                            <span class="report-date">Last 30 Days</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat">
+                                <span class="stat-label">Uptime</span>
+                                <span class="stat-value">94.2%</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Downtime</span>
+                                <span class="stat-value">5.8%</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Avg Distance/Bus</span>
+                                <span class="stat-value">3,248 km</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="stat-label">Fuel Efficiency</span>
+                                <span class="stat-value">29.5L/day</span>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <a href="#" class="btn-export">Export CSV</a>
+                            <a href="#" class="btn-export">Export PDF</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
