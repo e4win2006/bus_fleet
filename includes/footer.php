@@ -7,13 +7,28 @@
 <!-- Shared scripts: dynamic date and small animations -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Set dynamic date if an element exists
-        const dateEl = document.querySelector('.date-display');
-        if (dateEl) {
-            const now = new Date();
-            const opts = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-            dateEl.textContent = '📅 ' + now.toLocaleDateString(undefined, opts);
-        }
+    // Live clock – runs immediately (footer loads after all page HTML)
+    const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function tickClock() {
+        const els = document.querySelectorAll('.date-display');
+        if (!els.length) return;
+        const now = new Date();
+        const day  = DAYS[now.getDay()];
+        const date = now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+        const h = String(now.getHours()).padStart(2,'0');
+        const m = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
+        const html =
+            '<span style="font-size:12px;font-weight:600;opacity:0.7;">' + day + '</span>' +
+            '<span style="margin:0 5px;opacity:0.4;">·</span>' +
+            '<span style="font-weight:600;">' + date + '</span>' +
+            '<span style="margin:0 7px;opacity:0.3;">|</span>' +
+            '<span style="font-size:15px;font-weight:700;letter-spacing:0.04em;font-variant-numeric:tabular-nums;">' + h + ':' + m + ':' + s + '</span>';
+        els.forEach(function(el) { el.innerHTML = html; });
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
 
         // Automatic / Manual Dark Theme logic
         const themeToggle = document.getElementById('theme-toggle');

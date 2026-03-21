@@ -82,6 +82,9 @@ include __DIR__ . '/includes/header.php';
         <h1 class="page-title">Service Records</h1>
         <p class="page-subtitle">Manage maintenance logs and service history</p>
     </div>
+    <div class="header-right">
+        <div class="date-display"></div>
+    </div>
 </header>
 
 <section class="content-section">

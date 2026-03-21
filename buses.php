@@ -32,12 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if (empty($bus_number)) {
         $error = "Bus Number is required.";
-    } else {
+    }
+    else {
         $stmt = $pdo->prepare("INSERT INTO buses (bus_number, make, model, year, capacity, status, gps_url, cctv_url_1, cctv_url_2, route_id, driver_id, conductor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         try {
             $stmt->execute([$bus_number, $make, $model, $year, $capacity, $status, $gps_url, $cctv_url_1, $cctv_url_2, $route_id, $driver_id, $conductor_id]);
             $msg = "Bus added successfully.";
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e) {
             $error = "Error adding bus: " . $e->getMessage();
         }
     }
@@ -50,7 +52,8 @@ if (isset($_GET['delete_id'])) {
     $stmt = $pdo->prepare("UPDATE buses SET status = 'deleted' WHERE id = ?");
     if ($stmt->execute([$delete_id])) {
         $msg = "Bus deleted successfully.";
-    } else {
+    }
+    else {
         $error = "Failed to delete bus.";
     }
 }
@@ -98,11 +101,18 @@ include __DIR__ . '/includes/header.php';
         <h1 class="page-title">Buses Management</h1>
         <p class="page-subtitle">Add, edit, and manage fleet vehicles</p>
     </div>
+        <div class="header-right">
+        <div class="date-display"></div>
+    </div>
 </header>
 
 <section class="content-section">
-    <?php if ($msg): echo "<div class='alert alert-success'>$msg</div>"; endif; ?>
-    <?php if ($error): echo "<div class='alert alert-error'>$error</div>"; endif; ?>
+    <?php if ($msg):
+    echo "<div class='alert alert-success'>$msg</div>";
+endif; ?>
+    <?php if ($error):
+    echo "<div class='alert alert-error'>$error</div>";
+endif; ?>
 
     <div class="users-container">
         <!-- Buses List Table -->
@@ -127,17 +137,23 @@ include __DIR__ . '/includes/header.php';
                                 <td><?php echo htmlspecialchars($b['year']); ?></td>
                                 <td><?php echo htmlspecialchars($b['capacity']); ?></td>
                                 <td>
-                                    <?php if($b['route_name']): ?><div style="font-size: 12px; color: #3b82f6;">🛣️ <?php echo htmlspecialchars($b['route_name']); ?></div><?php endif; ?>
-                                    <?php if($b['driver_name']): ?><div style="font-size: 12px; color: #10b981;">👨‍✈️ <?php echo htmlspecialchars($b['driver_name']); ?></div><?php endif; ?>
-                                    <?php if($b['conductor_name']): ?><div style="font-size: 12px; color: #f59e0b;">🎫 <?php echo htmlspecialchars($b['conductor_name']); ?></div><?php endif; ?>
+                                    <?php if ($b['route_name']): ?><div style="font-size: 12px; color: #3b82f6;">🛣️ <?php echo htmlspecialchars($b['route_name']); ?></div><?php
+        endif; ?>
+                                    <?php if ($b['driver_name']): ?><div style="font-size: 12px; color: #10b981;">👨‍✈️ <?php echo htmlspecialchars($b['driver_name']); ?></div><?php
+        endif; ?>
+                                    <?php if ($b['conductor_name']): ?><div style="font-size: 12px; color: #f59e0b;">🎫 <?php echo htmlspecialchars($b['conductor_name']); ?></div><?php
+        endif; ?>
                                 </td>
                                 <td><span class="status-badge <?php echo $b['status'] === 'active' ? 'active' : 'idle'; ?>"><?php echo ucfirst(htmlspecialchars($b['status'])); ?></span></td>
                                 <td><a href="buses.php?delete_id=<?php echo $b['id']; ?>" style="color: #ef4444; font-size: 13px; font-weight: 500; text-decoration: none;" onclick="return confirm('Delete this bus?');">Delete</a></td>
                             </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+                        <?php
+    endforeach; ?>
+                    <?php
+else: ?>
                         <tr><td colspan="6" style="text-align: center;">No buses found.</td></tr>
-                    <?php endif; ?>
+                    <?php
+endif; ?>
                 </tbody>
             </table>
         </div>
@@ -168,9 +184,10 @@ include __DIR__ . '/includes/header.php';
                     <label class="form-label">Designated Route</label>
                     <select name="route_id" class="form-select">
                         <option value="">None (Unassigned)</option>
-                        <?php foreach($routes as $r): ?>
+                        <?php foreach ($routes as $r): ?>
                             <option value="<?php echo $r['id']; ?>"><?php echo htmlspecialchars($r['route_name']); ?></option>
-                        <?php endforeach; ?>
+                        <?php
+endforeach; ?>
                     </select>
                 </div>
                 
@@ -178,9 +195,10 @@ include __DIR__ . '/includes/header.php';
                     <label class="form-label">Assigned Driver</label>
                     <select name="driver_id" class="form-select">
                         <option value="">None (Unassigned)</option>
-                        <?php foreach($drivers as $d): ?>
+                        <?php foreach ($drivers as $d): ?>
                             <option value="<?php echo $d['id']; ?>"><?php echo htmlspecialchars($d['username']); ?></option>
-                        <?php endforeach; ?>
+                        <?php
+endforeach; ?>
                     </select>
                 </div>
 
@@ -188,9 +206,10 @@ include __DIR__ . '/includes/header.php';
                     <label class="form-label">Assigned Conductor</label>
                     <select name="conductor_id" class="form-select">
                         <option value="">None (Unassigned)</option>
-                        <?php foreach($conductors as $c): ?>
+                        <?php foreach ($conductors as $c): ?>
                             <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['username']); ?></option>
-                        <?php endforeach; ?>
+                        <?php
+endforeach; ?>
                     </select>
                 </div>
                 

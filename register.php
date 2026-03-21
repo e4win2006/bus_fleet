@@ -66,19 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .alert { padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.875rem; }
         .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
         .alert-success { background: #dcfce3; color: #15803d; border: 1px solid #bbf7d0; }
-        .btn-google { display: flex; align-items: center; justify-content: center; width: 100%; padding: 0.75rem; background: white; color: #333; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; font-family: inherit; margin-bottom: 1rem; text-decoration: none; box-sizing: border-box; }
-        .btn-google:hover { background: #f8fafc; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
-        .btn-google img { height: 18px; margin-right: 10px; }
-        .divider { display: flex; align-items: center; text-align: center; margin: 1.5rem 0; color: #94a3b8; font-size: 0.875rem; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; }
-        .divider::before { margin-right: 0.75rem; }
-        .divider::after { margin-left: 0.75rem; }
+
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-header">
-            <div class="auth-logo">🚌</div>
+            <img src="FleetVision Logo.png" alt="FleetVision Logo" class="auth-logo" style="height:64px;width:auto;object-fit:contain;">
             <h1 class="auth-title">Create an Account</h1>
         </div>
         
@@ -89,12 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo $success; ?></div>
         <?php else: ?>
-            <a href="google_auth.php" class="btn-google">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
-                Sign up with Google
-            </a>
 
-            <div class="divider">or sign up with email</div>
 
             <form method="POST" action="register.php">
                 <div class="form-group">

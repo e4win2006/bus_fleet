@@ -56,10 +56,28 @@ $routes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include __DIR__ . '/includes/header.php';
 ?>
 
+<style>
+.users-container { display: flex; gap: 24px; align-items: flex-start; }
+.users-list { flex: 2; }
+.user-form-card { flex: 1; background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; position: sticky; top: 24px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: #475569; }
+.form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+.btn-submit { width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn-submit:hover { background: #2563eb; }
+.alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
+.alert-success { background: #dcfce3; color: #15803d; border: 1px solid #bbf7d0; }
+.alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+@media (max-width: 992px) { .users-container { flex-direction: column-reverse; } .user-form-card { width: 100%; position: static; } }
+</style>
+
 <header class="top-header">
     <div class="header-left">
         <h1 class="page-title">Routes Management</h1>
         <p class="page-subtitle">Configure fleet transit paths and waypoints</p>
+    </div>
+    <div class="header-right">
+        <div class="date-display"></div>
     </div>
 </header>
 
@@ -67,9 +85,9 @@ include __DIR__ . '/includes/header.php';
     <?php if ($msg): echo "<div class='alert alert-success'>$msg</div>"; endif; ?>
     <?php if ($error): echo "<div class='alert alert-error'>$error</div>"; endif; ?>
 
-    <div style="display: flex; gap: 24px; align-items: flex-start;">
+    <div class="users-container">
         <!-- Routes Table -->
-        <div class="table-container" style="flex: 2;">
+        <div class="users-list table-container">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -101,7 +119,7 @@ include __DIR__ . '/includes/header.php';
         </div>
 
         <!-- Add Route Card -->
-        <div class="user-form-card" style="flex: 1; position: sticky; top: 24px;">
+        <div class="user-form-card">
             <h3 style="margin-bottom: 20px;">Add New Route</h3>
             <form method="POST" action="routes.php">
                 <input type="hidden" name="action" value="add_route">

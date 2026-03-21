@@ -76,6 +76,23 @@ try {
     )";
     $pdo->exec($query);
 
+    // Create trips table
+    $query = "CREATE TABLE IF NOT EXISTS trips (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bus_id INTEGER,
+        route_id INTEGER,
+        driver_id INTEGER,
+        start_time DATETIME,
+        end_time DATETIME,
+        status TEXT DEFAULT 'scheduled',
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(bus_id) REFERENCES buses(id),
+        FOREIGN KEY(route_id) REFERENCES routes(id),
+        FOREIGN KEY(driver_id) REFERENCES users(id)
+    )";
+    $pdo->exec($query);
+
     // Attempt to add relational columns to buses table
     try { $pdo->exec("ALTER TABLE buses ADD COLUMN route_id INTEGER REFERENCES routes(id)"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE buses ADD COLUMN driver_id INTEGER REFERENCES users(id)"); } catch (PDOException $e) {}
@@ -95,6 +112,12 @@ try {
     try {
         $pdo->exec("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'pending'");
     } catch (PDOException $e) {}
+
+    // Attempt to add staff profile columns
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN contact_no TEXT"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN license_number TEXT"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN emergency_contact TEXT"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN blood_type TEXT"); } catch (PDOException $e) {}
 
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());

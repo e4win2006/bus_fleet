@@ -191,6 +191,17 @@ body {
     font-size: 14px;
     color: #475569;
     border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+/* Global date-time bar injected by header.php on every page */
+.global-datetime-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
 }
 
 /* Content Sections */
