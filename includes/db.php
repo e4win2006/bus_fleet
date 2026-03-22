@@ -98,6 +98,9 @@ try {
     try { $pdo->exec("ALTER TABLE buses ADD COLUMN driver_id INTEGER REFERENCES users(id)"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE buses ADD COLUMN conductor_id INTEGER REFERENCES users(id)"); } catch (PDOException $e) {}
 
+    // Add conductor_id to trips table
+    try { $pdo->exec("ALTER TABLE trips ADD COLUMN conductor_id INTEGER REFERENCES users(id)"); } catch (PDOException $e) {}
+
     // Attempt to add Live Tracking columns to buses
     try { $pdo->exec("ALTER TABLE buses ADD COLUMN gps_url TEXT"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE buses ADD COLUMN cctv_url_1 TEXT"); } catch (PDOException $e) {}
@@ -118,6 +121,25 @@ try {
     try { $pdo->exec("ALTER TABLE users ADD COLUMN license_number TEXT"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE users ADD COLUMN emergency_contact TEXT"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE users ADD COLUMN blood_type TEXT"); } catch (PDOException $e) {}
+
+    // ── Global Auto-Update Logic ──────────────────────────────────────────────
+    // 1. Mark those trips as completed
+    $pdo->exec("
+        UPDATE trips
+        SET status = 'completed'
+        WHERE status IN ('ongoing', 'scheduled')
+          AND end_time IS NOT NULL
+          AND REPLACE(end_time, 'T', ' ') <= datetime('now', 'localtime')
+    ");
+
+    // 3. Mark scheduled trips whose start_time has passed as ongoing
+    $pdo->exec("
+        UPDATE trips
+        SET status = 'ongoing'
+        WHERE status = 'scheduled'
+          AND REPLACE(start_time, 'T', ' ') <= datetime('now', 'localtime')
+          AND (end_time IS NULL OR REPLACE(end_time, 'T', ' ') > datetime('now', 'localtime'))
+    ");
 
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());

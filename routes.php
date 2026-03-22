@@ -35,6 +35,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Handle Edit Route
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_route') {
+    $route_id = (int)$_POST['route_id'];
+    $route_name = trim($_POST['route_name']);
+    $start_location = trim($_POST['start_location']);
+    $end_location = trim($_POST['end_location']);
+    $distance = (float)($_POST['distance'] ?? 0);
+    $duration = trim($_POST['estimated_duration'] ?? '');
+    $status = $_POST['status'] ?? 'active';
+
+    if (empty($route_name)) {
+        $error = "Route name is required.";
+    } else {
+        $stmt = $pdo->prepare("UPDATE routes SET route_name=?, start_location=?, end_location=?, distance=?, estimated_duration=?, status=? WHERE id=?");
+        try {
+            $stmt->execute([$route_name, $start_location, $end_location, $distance, $duration, $status, $route_id]);
+            $msg = "Route updated successfully.";
+        } catch (PDOException $e) {
+            $error = "Error updating route: " . $e->getMessage();
+        }
+    }
+}
+
 // Handle Delete Route
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
@@ -68,6 +91,8 @@ include __DIR__ . '/includes/header.php';
 .alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
 .alert-success { background: #dcfce3; color: #15803d; border: 1px solid #bbf7d0; }
 .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.hover-row { transition: background-color 0.2s ease; }
+.hover-row:hover { background-color: #f8fafc; }
 @media (max-width: 992px) { .users-container { flex-direction: column-reverse; } .user-form-card { width: 100%; position: static; } }
 </style>
 
@@ -102,13 +127,20 @@ include __DIR__ . '/includes/header.php';
                 <tbody>
                     <?php if (count($routes) > 0): ?>
                         <?php foreach ($routes as $r): ?>
-                            <tr>
+                            <?php
+                            $jsdata = htmlspecialchars(json_encode([
+                                'id' => $r['id'], 'route_name'=> $r['route_name'], 'start_location'=>$r['start_location'], 'end_location'=>$r['end_location'], 'distance'=>$r['distance'], 'estimated_duration'=>$r['estimated_duration'], 'status'=>$r['status']
+                            ]), ENT_QUOTES, 'UTF-8');
+                            ?>
+                            <tr onclick="editRoute(this)" data-route="<?php echo $jsdata; ?>" class="hover-row" style="cursor: pointer;" title="Click to edit">
                                 <td style="font-weight: 500;"><?php echo htmlspecialchars($r['route_name']); ?></td>
                                 <td><?php echo htmlspecialchars($r['start_location'] . ' ➔ ' . $r['end_location']); ?></td>
                                 <td><?php echo $r['distance']; ?> km</td>
                                 <td><?php echo $r['estimated_duration']; ?> mins</td>
                                 <td><span class="status-badge <?php echo $r['status'] === 'active' ? 'active' : 'idle'; ?>"><?php echo ucfirst(htmlspecialchars($r['status'])); ?></span></td>
-                                <td><a href="routes.php?delete_id=<?php echo $r['id']; ?>" style="color: #ef4444; font-size: 13px; font-weight: 500; text-decoration: none;" onclick="return confirm('Delete route? Associated buses will be unassigned from this route.');">Delete</a></td>
+                                <td>
+                                    <a href="routes.php?delete_id=<?php echo $r['id']; ?>" style="color: #ef4444; font-size: 13px; font-weight: 500; text-decoration: none;" onclick="event.stopPropagation(); return confirm('Delete route? Associated buses will be unassigned from this route.');">Delete</a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -120,28 +152,61 @@ include __DIR__ . '/includes/header.php';
 
         <!-- Add Route Card -->
         <div class="user-form-card">
-            <h3 style="margin-bottom: 20px;">Add New Route</h3>
-            <form method="POST" action="routes.php">
-                <input type="hidden" name="action" value="add_route">
-                <div class="form-group"><label class="form-label">Route Alias / Name</label><input type="text" name="route_name" class="form-input" placeholder="e.g. Route A / Express 1" required></div>
-                <div class="form-group"><label class="form-label">Start Location</label><input type="text" name="start_location" class="form-input" placeholder="e.g. North Station"></div>
-                <div class="form-group"><label class="form-label">End Location</label><input type="text" name="end_location" class="form-input" placeholder="e.g. Downtown Central"></div>
+            <h3 id="form-title" style="margin-bottom: 20px;">Add New Route</h3>
+            <form method="POST" action="routes.php" id="route-form">
+                <input type="hidden" name="action" id="form-action" value="add_route">
+                <input type="hidden" name="route_id" id="form-route-id" value="">
+                
+                <div class="form-group"><label class="form-label">Route Alias / Name</label><input type="text" name="route_name" id="form-route_name" class="form-input" placeholder="e.g. Route A / Express 1" required></div>
+                <div class="form-group"><label class="form-label">Start Location</label><input type="text" name="start_location" id="form-start_location" class="form-input" placeholder="e.g. North Station"></div>
+                <div class="form-group"><label class="form-label">End Location</label><input type="text" name="end_location" id="form-end_location" class="form-input" placeholder="e.g. Downtown Central"></div>
                 
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                    <div style="flex: 1;"><label class="form-label">Distance (km)</label><input type="number" step="0.1" name="distance" class="form-input" value="10.5"></div>
-                    <div style="flex: 1;"><label class="form-label">Duration (mins)</label><input type="number" name="estimated_duration" class="form-input" value="45"></div>
+                    <div style="flex: 1;"><label class="form-label">Distance (km)</label><input type="number" step="0.1" name="distance" id="form-distance" class="form-input" value="10.5"></div>
+                    <div style="flex: 1;"><label class="form-label">Duration</label><input type="text" name="estimated_duration" id="form-estimated_duration" class="form-input" placeholder="e.g. 45 mins, 1h 30m"></div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
+                    <select name="status" id="form-status" class="form-select">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
                 
-                <button type="submit" class="btn-submit" style="margin-top: 10px;">Save Route</button>
+                <button type="submit" class="btn-submit" id="btn-submit" style="margin-top: 10px;">Save Route</button>
+                <button type="button" class="btn-cancel" id="btn-cancel" style="margin-top: 10px; display:none; background:#94a3b8; color:white; width:100%; padding:10px; border:none; border-radius:6px; font-weight:600; cursor:pointer;" onclick="cancelEdit()">Cancel Edit</button>
             </form>
+            <script>
+            function editRoute(el) {
+                var data = JSON.parse(el.getAttribute('data-route'));
+                document.getElementById('form-action').value = 'edit_route';
+                document.getElementById('form-route-id').value = data.id;
+                document.getElementById('form-route_name').value = data.route_name || '';
+                document.getElementById('form-start_location').value = data.start_location || '';
+                document.getElementById('form-end_location').value = data.end_location || '';
+                document.getElementById('form-distance').value = data.distance || '0';
+                document.getElementById('form-estimated_duration').value = data.estimated_duration || '';
+                document.getElementById('form-status').value = data.status || 'active';
+                document.getElementById('form-title').innerText = 'Edit Route';
+                document.getElementById('btn-submit').innerText = 'Save Changes';
+                document.getElementById('btn-cancel').style.display = 'block';
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+            function cancelEdit() {
+                document.getElementById('form-action').value = 'add_route';
+                document.getElementById('form-route-id').value = '';
+                document.getElementById('form-route_name').value = '';
+                document.getElementById('form-start_location').value = '';
+                document.getElementById('form-end_location').value = '';
+                document.getElementById('form-distance').value = '10.5';
+                document.getElementById('form-estimated_duration').value = '';
+                document.getElementById('form-status').value = 'active';
+                document.getElementById('form-title').innerText = 'Add New Route';
+                document.getElementById('btn-submit').innerText = 'Save Route';
+                document.getElementById('btn-cancel').style.display = 'none';
+            }
+            </script>
         </div>
     </div>
 </section>

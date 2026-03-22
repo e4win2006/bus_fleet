@@ -48,6 +48,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_s
     }
 }
 
+// ── Edit Staff Member ─────────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit_staff') {
+    $uid = (int)$_POST['user_id'];
+    $username = trim($_POST['username']);
+    $role = in_array($_POST['role'], ['driver', 'conductor']) ? $_POST['role'] : 'driver';
+    $contact_no = trim($_POST['contact_no'] ?? '');
+    $license_number = trim($_POST['license_number'] ?? '');
+    $emergency_contact = trim($_POST['emergency_contact'] ?? '');
+    $blood_type = trim($_POST['blood_type'] ?? '');
+
+    if (empty($username)) {
+        $error = 'Full name is required.';
+    } else {
+        $stmt = $pdo->prepare("UPDATE users SET username=?, role=?, contact_no=?, license_number=?, emergency_contact=?, blood_type=? WHERE id=?");
+        try {
+            $stmt->execute([$username, $role, $contact_no, $role === 'driver' ? $license_number : null, $emergency_contact, $blood_type, $uid]);
+            $msg = 'Staff member updated successfully.';
+        } catch (PDOException $e) {
+            $error = 'Error updating staff: ' . $e->getMessage();
+        }
+    }
+}
+
 // ── Change Role ───────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'change_role') {
     $uid = (int)$_POST['user_id'];
@@ -117,6 +140,8 @@ include __DIR__ . '/includes/header.php';
 .role-pill.driver     { background: #dbeafe; color: #1d4ed8; }
 .role-pill.conductor  { background: #fef3c7; color: #92400e; }
 .empty-row td     { text-align: center; color: #94a3b8; padding: 24px !important; }
+.hover-row        { transition: background-color 0.2s ease; }
+.hover-row:hover  { background-color: #f8fafc; }
 @media (max-width: 992px) { .staff-layout { flex-direction: column-reverse; } .staff-sidebar { width: 100%; position: static; } }
 </style>
 
@@ -161,7 +186,13 @@ endif; ?>
                     <tbody>
                         <?php if (count($drivers) > 0): ?>
                             <?php foreach ($drivers as $d): ?>
-                                <tr>
+                                <?php
+                                $jsdata = htmlspecialchars(json_encode([
+                                    'id' => $d['id'], 'username' => $d['username'], 'role' => $d['role'], 'contact_no' => $d['contact_no'], 
+                                    'license_number' => $d['license_number'], 'emergency_contact' => $d['emergency_contact'], 'blood_type' => $d['blood_type']
+                                ]), ENT_QUOTES, 'UTF-8');
+                                ?>
+                                <tr onclick="editStaff(this)" data-staff="<?php echo $jsdata; ?>" class="hover-row" style="cursor: pointer;" title="Click to edit">
                                     <td style="font-weight:600;"><?php echo htmlspecialchars($d['username']); ?></td>
                                     <td><?php echo htmlspecialchars($d['contact_no'] ?: '—'); ?></td>
                                     <td><?php echo htmlspecialchars($d['license_number'] ?: '—'); ?></td>
@@ -173,10 +204,10 @@ endif; ?>
                                         <span class="status-badge <?php echo $sc; ?>"><?php echo ucfirst($d['status']); ?></span>
                                     </td>
                                     <td>
-                                        <a href="staff.php?toggle_id=<?php echo $d['id']; ?>" class="action-link <?php echo $d['status'] === 'approved' ? 'toggle-on' : 'toggle-off'; ?>">
+                                        <a href="staff.php?toggle_id=<?php echo $d['id']; ?>" class="action-link <?php echo $d['status'] === 'approved' ? 'toggle-on' : 'toggle-off'; ?>" onclick="event.stopPropagation();">
                                             <?php echo $d['status'] === 'approved' ? '⏸ Suspend' : '▶ Activate'; ?>
                                         </a>
-                                        <a href="staff.php?delete_id=<?php echo $d['id']; ?>" class="action-link delete" onclick="return confirm('Remove this driver?');">🗑 Remove</a>
+                                        <a href="staff.php?delete_id=<?php echo $d['id']; ?>" class="action-link delete" onclick="event.stopPropagation(); return confirm('Remove this driver?');">🗑 Remove</a>
                                     </td>
                                 </tr>
                             <?php
@@ -208,7 +239,13 @@ endif; ?>
                     <tbody>
                         <?php if (count($conductors) > 0): ?>
                             <?php foreach ($conductors as $c): ?>
-                                <tr>
+                                <?php
+                                $jsdata = htmlspecialchars(json_encode([
+                                    'id' => $c['id'], 'username' => $c['username'], 'role' => $c['role'], 'contact_no' => $c['contact_no'], 
+                                    'license_number' => $c['license_number'], 'emergency_contact' => $c['emergency_contact'], 'blood_type' => $c['blood_type']
+                                ]), ENT_QUOTES, 'UTF-8');
+                                ?>
+                                <tr onclick="editStaff(this)" data-staff="<?php echo $jsdata; ?>" class="hover-row" style="cursor: pointer;" title="Click to edit">
                                     <td style="font-weight:600;"><?php echo htmlspecialchars($c['username']); ?></td>
                                     <td><?php echo htmlspecialchars($c['contact_no'] ?: '—'); ?></td>
                                     <td><?php echo htmlspecialchars($c['blood_type'] ?: '—'); ?></td>
@@ -219,10 +256,10 @@ endif; ?>
                                         <span class="status-badge <?php echo $sc; ?>"><?php echo ucfirst($c['status']); ?></span>
                                     </td>
                                     <td>
-                                        <a href="staff.php?toggle_id=<?php echo $c['id']; ?>" class="action-link <?php echo $c['status'] === 'approved' ? 'toggle-on' : 'toggle-off'; ?>">
+                                        <a href="staff.php?toggle_id=<?php echo $c['id']; ?>" class="action-link <?php echo $c['status'] === 'approved' ? 'toggle-on' : 'toggle-off'; ?>" onclick="event.stopPropagation();">
                                             <?php echo $c['status'] === 'approved' ? '⏸ Suspend' : '▶ Activate'; ?>
                                         </a>
-                                        <a href="staff.php?delete_id=<?php echo $c['id']; ?>" class="action-link delete" onclick="return confirm('Remove this conductor?');">🗑 Remove</a>
+                                        <a href="staff.php?delete_id=<?php echo $c['id']; ?>" class="action-link delete" onclick="event.stopPropagation(); return confirm('Remove this conductor?');">🗑 Remove</a>
                                     </td>
                                 </tr>
                             <?php
@@ -240,13 +277,14 @@ endif; ?>
         <!-- Right: Add Form -->
         <div class="staff-sidebar">
             <div class="user-form-card">
-                <h3 style="margin-bottom:18px; font-size:17px;">Add Driver / Conductor</h3>
-                <form method="POST" action="staff.php">
-                    <input type="hidden" name="action" value="add_staff">
+                <h3 id="form-title" style="margin-bottom:18px; font-size:17px;">Add Driver / Conductor</h3>
+                <form method="POST" action="staff.php" id="staff-form">
+                    <input type="hidden" name="action" id="form-action" value="add_staff">
+                    <input type="hidden" name="user_id" id="form-user-id" value="">
 
                     <div class="form-group">
                         <label class="form-label">Role *</label>
-                        <select name="role" id="role-select" class="form-select" required onchange="toggleLicense(this.value)">
+                        <select name="role" id="form-role" class="form-select" required onchange="toggleLicense(this.value)">
                             <option value="driver">🚗 Driver</option>
                             <option value="conductor">🎫 Conductor</option>
                         </select>
@@ -254,39 +292,66 @@ endif; ?>
 
                     <div class="form-group">
                         <label class="form-label">Full Name *</label>
-                        <input type="text" name="username" class="form-input" placeholder="e.g. John Kumar" required>
+                        <input type="text" name="username" id="form-username" class="form-input" placeholder="e.g. John Kumar" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Contact Number</label>
-                        <input type="tel" name="contact_no" class="form-input" placeholder="e.g. +91 98765 43210">
+                        <input type="tel" name="contact_no" id="form-contact_no" class="form-input" placeholder="e.g. +91 98765 43210">
                     </div>
 
                     <div class="form-group" id="license-field">
                         <label class="form-label">License Number <span style="color:#3b82f6;">(Driver only)</span></label>
-                        <input type="text" name="license_number" class="form-input" placeholder="e.g. KL-01-20200012345">
+                        <input type="text" name="license_number" id="form-license_number" class="form-input" placeholder="e.g. KL-01-20200012345">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Emergency Contact</label>
-                        <input type="text" name="emergency_contact" class="form-input" placeholder="Name & phone number">
+                        <input type="text" name="emergency_contact" id="form-emergency_contact" class="form-input" placeholder="Name & phone number">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Blood Type</label>
-                        <select name="blood_type" class="form-select">
-                            <option value="">— Select —</option>
-                            <option>A+</option><option>A-</option>
-                            <option>B+</option><option>B-</option>
-                            <option>O+</option><option>O-</option>
-                            <option>AB+</option><option>AB-</option>
-                        </select>
+                        <input type="text" name="blood_type" id="form-blood_type" class="form-input" placeholder="e.g. A+, B-, O+, AB+">
                     </div>
 
-                    <button type="submit" class="btn-submit">Add Staff Member</button>
+                    <button type="submit" class="btn-submit" id="btn-submit">Add Staff Member</button>
+                    <button type="button" class="btn-cancel" id="btn-cancel" style="margin-top: 10px; display:none; background:#94a3b8; color:white; width:100%; padding:10px; border:none; border-radius:6px; font-weight:600; cursor:pointer;" onclick="cancelEdit()">Cancel Edit</button>
                     <script>
                     function toggleLicense(role) {
                         document.getElementById('license-field').style.display = role === 'driver' ? 'block' : 'none';
+                    }
+                    function editStaff(el) {
+                        var data = JSON.parse(el.getAttribute('data-staff'));
+                        document.getElementById('form-action').value = 'edit_staff';
+                        document.getElementById('form-user-id').value = data.id;
+                        document.getElementById('form-role').value = data.role || 'driver';
+                        document.getElementById('form-username').value = data.username || '';
+                        document.getElementById('form-contact_no').value = data.contact_no || '';
+                        document.getElementById('form-license_number').value = data.license_number || '';
+                        document.getElementById('form-emergency_contact').value = data.emergency_contact || '';
+                        document.getElementById('form-blood_type').value = data.blood_type || '';
+                        toggleLicense(data.role || 'driver');
+                        
+                        document.getElementById('form-title').innerText = 'Edit Staff Details';
+                        document.getElementById('btn-submit').innerText = 'Save Changes';
+                        document.getElementById('btn-cancel').style.display = 'block';
+                        window.scrollTo({top: 0, behavior: 'smooth'});
+                    }
+                    function cancelEdit() {
+                        document.getElementById('form-action').value = 'add_staff';
+                        document.getElementById('form-user-id').value = '';
+                        document.getElementById('form-role').value = 'driver';
+                        document.getElementById('form-username').value = '';
+                        document.getElementById('form-contact_no').value = '';
+                        document.getElementById('form-license_number').value = '';
+                        document.getElementById('form-emergency_contact').value = '';
+                        document.getElementById('form-blood_type').value = '';
+                        toggleLicense('driver');
+                        
+                        document.getElementById('form-title').innerText = 'Add Driver / Conductor';
+                        document.getElementById('btn-submit').innerText = 'Add Staff Member';
+                        document.getElementById('btn-cancel').style.display = 'none';
                     }
                     </script>
                 </form>

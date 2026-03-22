@@ -92,5 +92,144 @@
         });
     });
 </script>
+
+<!-- jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- FleetVision jQuery Animation Layer -->
+<script>
+$(function () {
+
+    /* ── 1. Page fade-in ─────────────────────────────────────────── */
+    $('body').css('opacity', 0).animate({ opacity: 1 }, 400);
+
+    /* ── 2. Staggered table row slide-in ────────────────────────── */
+    $('.data-table tbody tr').each(function (i) {
+        $(this).css({ opacity: 0, transform: 'translateX(-12px)' })
+            .delay(i * 45)
+            .animate({ opacity: 1 }, {
+                duration: 280,
+                step: function (n) {
+                    $(this).css('transform', 'translateX(' + (-12 + 12 * n) + 'px)');
+                }
+            });
+    });
+
+    /* ── 3. Staggered maintenance / action cards ────────────────── */
+    $('.maintenance-card, .user-form-card, .kpi-card, .chart-card, .report-card').each(function (i) {
+        $(this).css({ opacity: 0, transform: 'translateY(16px)' })
+            .delay(i * 60)
+            .animate({ opacity: 1 }, {
+                duration: 350,
+                step: function (n) {
+                    $(this).css('transform', 'translateY(' + (16 - 16 * n) + 'px)');
+                }
+            });
+    });
+
+    /* ── 4. KPI number counter animation ────────────────────────── */
+    $('.kpi-value').each(function () {
+        var $el   = $(this);
+        var final = parseInt($el.text(), 10);
+        if (isNaN(final) || final === 0) return;
+        $el.text('0');
+        $({ val: 0 }).animate({ val: final }, {
+            duration: 900,
+            easing: 'swing',
+            step: function () { $el.text(Math.ceil(this.val)); },
+            complete: function () { $el.text(final); }
+        });
+    });
+
+    /* ── 5. Alert auto-dismiss (success/error) ──────────────────── */
+    $('.alert-success, .alert-error').each(function () {
+        var $alert = $(this);
+        $alert.css({ position: 'relative', overflow: 'hidden' });
+        // Progress bar
+        $('<div>').css({
+            position: 'absolute', bottom: 0, left: 0,
+            height: '3px', width: '100%',
+            background: $alert.hasClass('alert-success') ? '#10b981' : '#ef4444',
+            borderRadius: '0 0 6px 6px'
+        }).appendTo($alert).animate({ width: '0%' }, 4000);
+
+        setTimeout(function () {
+            $alert.slideUp(400, function () { $(this).remove(); });
+        }, 4200);
+    });
+
+    /* ── 6. Button ripple effect ────────────────────────────────── */
+    $(document).on('click', '.btn-submit, .m-btn, button[type="submit"]', function (e) {
+        var $btn  = $(this);
+        var offset = $btn.offset();
+        var x = e.pageX - offset.left;
+        var y = e.pageY - offset.top;
+        var $ripple = $('<span>').css({
+            position: 'absolute', borderRadius: '50%',
+            background: 'rgba(255,255,255,0.35)',
+            width: 0, height: 0,
+            left: x, top: y,
+            transform: 'translate(-50%,-50%)',
+            pointerEvents: 'none'
+        });
+        if ($btn.css('position') === 'static') $btn.css('position', 'relative');
+        $btn.css('overflow', 'hidden').append($ripple);
+        $ripple.animate({ width: 200, height: 200, opacity: 0 }, {
+            duration: 500,
+            complete: function () { $(this).remove(); }
+        });
+    });
+
+    /* ── 7. Nav item hover micro-bounce ─────────────────────────── */
+    $('.nav-item').on('mouseenter', function () {
+        $(this).stop(true).animate({ paddingLeft: '26px' }, 120);
+    }).on('mouseleave', function () {
+        $(this).stop(true).animate({ paddingLeft: '20px' }, 120);
+    });
+
+    /* ── 8. Form input focus glow ───────────────────────────────── */
+    $(document).on('focus', '.form-input, .form-select, .form-textarea', function () {
+        $(this).stop(true).animate({ borderWidth: '2px' }, 150);
+    }).on('blur', '.form-input, .form-select, .form-textarea', function () {
+        $(this).stop(true).animate({ borderWidth: '1px' }, 150);
+    });
+
+    /* ── 9. Status badge pulse on load ─────────────────────────── */
+    $('.status-badge.active').each(function () {
+        var $b = $(this);
+        (function pulse() {
+            $b.animate({ opacity: 0.6 }, 800).animate({ opacity: 1 }, 800, pulse);
+        })();
+    });
+
+    /* ── 10. Action card (quick action) lift on hover ───────────── */
+    $(document).on('mouseenter', '.action-card', function () {
+        $(this).stop(true).animate({ marginTop: '-4px', marginBottom: '4px' }, 150);
+    }).on('mouseleave', '.action-card', function () {
+        $(this).stop(true).animate({ marginTop: '0px', marginBottom: '0px' }, 150);
+    });
+
+    /* ── 11. Table row highlight on click ───────────────────────── */
+    $(document).on('click', '.data-table tbody tr', function () {
+        $('.data-table tbody tr').css('background', '');
+        $(this).css('background', '#eff6ff');
+        setTimeout(() => $(this).css('background', ''), 1200);
+    });
+
+    /* ── 12. Search input live table filter ─────────────────────── */
+    $(document).on('keyup', '.search-input', function () {
+        var q = $(this).val().toLowerCase();
+        $(this).closest('section, .content-section').find('.data-table tbody tr').each(function () {
+            var text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(q));
+        });
+    });
+
+    /* ── 13. Sidebar active item slide-in indicator ─────────────── */
+    $('.nav-item.active').css({ borderLeftWidth: 0 })
+        .animate({ borderLeftWidth: 3 }, 400);
+
+});
+</script>
 </body>
 </html>

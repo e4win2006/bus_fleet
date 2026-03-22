@@ -80,12 +80,6 @@ $username_initials = strtoupper(substr($current_username, 0, 2));
 
                 <!-- Admin Only Navigation -->
                 <?php if ($role === 'admin'): ?>
-                    <a href="reports.php" class="nav-item <?php echo($page === 'reports') ? 'active' : ''; ?>" <?php if ($page === 'reports')
-            echo 'aria-current="page"'; ?>>
-                        <i data-lucide="bar-chart-3" class="nav-icon"></i>
-                        <span class="nav-label">Reports</span>
-                    </a>
-
                     <a href="buses.php" class="nav-item <?php echo($page === 'buses') ? 'active' : ''; ?>" <?php if ($page === 'buses')
             echo 'aria-current="page"'; ?>>
                         <i data-lucide="bus" class="nav-icon"></i>
@@ -94,13 +88,9 @@ $username_initials = strtoupper(substr($current_username, 0, 2));
                     <a href="staff.php" class="nav-item <?php echo($page === 'staff') ? 'active' : ''; ?>" <?php if ($page === 'staff')
             echo 'aria-current="page"'; ?>>
                         <i data-lucide="users" class="nav-icon"></i>
-                        <span class="nav-label">Drivers & Staff</span>
+                        <span class="nav-label">Drivers & Conductors</span>
                     </a>
-                    <a href="services.php" class="nav-item <?php echo($page === 'services') ? 'active' : ''; ?>" <?php if ($page === 'services')
-            echo 'aria-current="page"'; ?>>
-                        <i data-lucide="hammer" class="nav-icon"></i>
-                        <span class="nav-label">Services</span>
-                    </a>
+
                     <a href="settings.php" class="nav-item <?php echo($page === 'settings') ? 'active' : ''; ?>" <?php if ($page === 'settings')
             echo 'aria-current="page"'; ?>>
                         <i data-lucide="settings" class="nav-icon"></i>
