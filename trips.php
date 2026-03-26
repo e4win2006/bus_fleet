@@ -152,6 +152,31 @@ include __DIR__ . '/includes/header.php';
 .hover-row { transition: background-color 0.2s ease; }
 .hover-row:hover { background-color: #f8fafc; }
 @media (max-width: 992px) { .users-container { flex-direction: column-reverse; } .user-form-card { width: 100%; position: static; } }
+
+/* AJAX button styles */
+.btn-ajax-action {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; background: none; padding: 3px 6px;
+    border-radius: 4px; transition: background 0.15s, opacity 0.15s;
+    margin-right: 4px;
+}
+.btn-ajax-action.complete { color: #10b981; }
+.btn-ajax-action.complete:hover { background: #d1fae5; }
+.btn-ajax-action.delete   { color: #ef4444; }
+.btn-ajax-action.delete:hover   { background: #fee2e2; }
+.btn-ajax-action:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Toast notification */
+#trip-toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    display: none; opacity: 0;
+    transition: opacity 0.3s;
+}
+#trip-toast.success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+#trip-toast.error   { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 </style>
 
 <header class="top-header">
@@ -210,11 +235,21 @@ include __DIR__ . '/includes/header.php';
                                     ?>
                                     <span class="status-badge <?php echo $sc; ?>"><?php echo ucfirst($t['status']); ?></span>
                                 </td>
-                                <td>
+                                <td onclick="event.stopPropagation()">
                                     <?php if ($t['status'] === 'ongoing' || $t['status'] === 'scheduled'): ?>
-                                        <a href="trips.php?complete_id=<?php echo $t['id']; ?>" class="action-link complete" onclick="event.stopPropagation(); return confirm('Mark as completed?');">✓ Complete</a>
+                                        <button
+                                            class="btn-ajax-action complete"
+                                            data-id="<?php echo $t['id']; ?>"
+                                            onclick="ajaxCompleteTrip(this)"
+                                            title="Mark as completed"
+                                        >✓ Complete</button>
                                     <?php endif; ?>
-                                    <a href="trips.php?delete_id=<?php echo $t['id']; ?>" class="action-link delete" onclick="event.stopPropagation(); return confirm('Delete this trip?');">Delete</a>
+                                    <button
+                                        class="btn-ajax-action delete"
+                                        data-id="<?php echo $t['id']; ?>"
+                                        onclick="ajaxDeleteTrip(this)"
+                                        title="Delete trip"
+                                    >🗑 Delete</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -308,5 +343,169 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
+
+<!-- Toast notification container -->
+<div id="trip-toast"></div>
+
+<script>
+// ── AJAX: Mark trip as completed ─────────────────────────────────────────
+function ajaxCompleteTrip(btn) {
+    if (!confirm('Mark this trip as completed?')) return;
+    var tripId = btn.getAttribute('data-id');
+    var $row   = $(btn).closest('tr');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Saving…';
+
+    $.ajax({
+        url: 'ajax_handlers.php',
+        method: 'POST',
+        data: { action: 'ajax_complete_trip', trip_id: tripId },
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                // Update status badge in-place
+                var $badge = $row.find('.status-badge');
+                $badge.removeClass('idle ongoing active maintenance')
+                      .addClass('active')
+                      .text('Completed');
+
+                // Remove the Complete button with animation
+                $(btn).fadeOut(300, function() { $(this).remove(); });
+
+                // Flash the row green
+                $row.css('background', '#d1fae5');
+                setTimeout(function() {
+                    $row.css('transition', 'background 0.8s');
+                    $row.css('background', '');
+                    setTimeout(function() { $row.css('transition', ''); }, 900);
+                }, 600);
+
+                showTripToast(res.message, 'success');
+            } else {
+                btn.disabled = false;
+                btn.textContent = '✓ Complete';
+                showTripToast(res.message || 'Failed to update.', 'error');
+            }
+        },
+        error: function() {
+            btn.disabled = false;
+            btn.textContent = '✓ Complete';
+            showTripToast('Network error. Please try again.', 'error');
+        }
+    });
+}
+
+// ── AJAX: Delete trip ────────────────────────────────────────────────────
+function ajaxDeleteTrip(btn) {
+    if (!confirm('Delete this trip? This cannot be undone.')) return;
+    var tripId = btn.getAttribute('data-id');
+    var $row   = $(btn).closest('tr');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Deleting…';
+
+    $.ajax({
+        url: 'ajax_handlers.php',
+        method: 'POST',
+        data: { action: 'ajax_delete_trip', trip_id: tripId },
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                // Animate row removal
+                $row.css({ background: '#fee2e2', transition: 'background 0.3s' });
+                setTimeout(function() {
+                    $row.fadeOut(400, function() {
+                        $row.remove();
+                        // Show "No trips" if table is now empty
+                        var $tbody = $('.data-table tbody');
+                        if ($tbody.find('tr').length === 0) {
+                            $tbody.append('<tr><td colspan="8" style="text-align:center;color:#64748b;">No trips recorded yet. Add one →</td></tr>');
+                        }
+                    });
+                }, 300);
+                showTripToast(res.message, 'success');
+            } else {
+                btn.disabled = false;
+                btn.textContent = '🗑 Delete';
+                showTripToast(res.message || 'Failed to delete.', 'error');
+            }
+        },
+        error: function() {
+            btn.disabled = false;
+            btn.textContent = '🗑 Delete';
+            showTripToast('Network error. Please try again.', 'error');
+        }
+    });
+}
+
+// ── Toast helper ──────────────────────────────────────────────────────────
+function showTripToast(msg, type) {
+    var $t = $('#trip-toast');
+    $t.removeClass('success error').addClass(type).text(msg);
+    $t.stop(true).css({ display: 'block', opacity: 0 })
+      .animate({ opacity: 1 }, 250);
+    clearTimeout(window._tripToastTimer);
+    window._tripToastTimer = setTimeout(function() {
+        $t.animate({ opacity: 0 }, 400, function() { $t.hide(); });
+    }, 3500);
+}
+
+// ── Auto-start poller: scheduled → ongoing when start_time reached ────────
+function checkAutoStartTrips() {
+    $.ajax({
+        url: 'ajax_handlers.php',
+        method: 'POST',
+        data: { action: 'ajax_auto_start_trips' },
+        dataType: 'json',
+        success: function(res) {
+            if (res.success && res.started_ids && res.started_ids.length > 0) {
+                res.started_ids.forEach(function(id) {
+                    // Find the row that contains an action button with this trip id
+                    var $row = $('tr').filter(function() {
+                        return $(this).find('[data-id="' + id + '"]').length > 0;
+                    });
+                    if (!$row.length) return;
+
+                    // Update the status badge to Ongoing
+                    var $badge = $row.find('.status-badge');
+                    $badge.removeClass('idle active ongoing maintenance')
+                          .addClass('ongoing')
+                          .text('Ongoing');
+
+                    // Add a Complete button if it isn't already there
+                    var $actions = $row.find('td').last();
+                    if (!$actions.find('.btn-ajax-action.complete').length) {
+                        var $btn = $('<button>', {
+                            'class': 'btn-ajax-action complete',
+                            'data-id': id,
+                            'title': 'Mark as completed',
+                            'text': '✓ Complete'
+                        }).on('click', function() { ajaxCompleteTrip(this); });
+                        $actions.prepend($btn);
+                    }
+
+                    // Flash the row blue to signal the auto-start
+                    $row.css('background', '#dbeafe');
+                    setTimeout(function() {
+                        $row.css('transition', 'background 1s');
+                        $row.css('background', '');
+                        setTimeout(function() { $row.css('transition', ''); }, 1100);
+                    }, 700);
+                });
+
+                showTripToast(res.started_ids.length + ' trip(s) automatically started.', 'success');
+            }
+        }
+        // Silently ignore network errors — poller will retry on the next interval
+    });
+}
+
+// Run once on page load, then every 30 seconds
+$(document).ready(function() {
+    checkAutoStartTrips();
+    setInterval(checkAutoStartTrips, 30000);
+});
+</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
