@@ -161,6 +161,39 @@ $buses_on_journey = $pdo->query("
     transition: all 0.2s ease;
 }
 .mini-action-btn:hover { background: #3b82f6; color: white; transform: translateY(-2px); }
+
+/* Dashboard AJAX live styles */
+.live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #10b981;
+    display: inline-block; margin-right: 6px;
+    animation: livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+}
+.dash-refresh-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 6px; border: 1px solid #cbd5e1;
+    background: #fff; color: #475569; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+}
+.dash-refresh-btn:hover { background: #f1f5f9; }
+.dash-refresh-btn.spinning svg, .dash-refresh-btn.spinning i { animation: spin360d 0.7s linear; }
+@keyframes spin360d { to { transform: rotate(360deg); } }
+.dash-last-updated { font-size: 11px; color: #94a3b8; margin-left: 8px; }
+
+/* Number flash animation */
+@keyframes numFlash { 0%,100% { opacity:1; } 40% { opacity:0.3; } }
+.stat-value.updated { animation: numFlash 0.5s ease; }
+
+/* Dashboard toast */
+#dash-toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15); display: none; opacity: 0;
+}
+#dash-toast.info { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
 </style>
 
 <header class="top-header">
@@ -187,7 +220,7 @@ $buses_on_journey = $pdo->query("
                 <div class="stat-title">Fleet Utilization</div>
                 <div class="stat-icon"><i data-lucide="bus"></i></div>
             </div>
-            <div class="stat-value"><?php echo $active_buses; ?> <span style="font-size:16px;font-weight:500;">/ <?php echo $total_buses; ?></span></div>
+            <div class="stat-value" id="kpi-active-buses"><?php echo $active_buses; ?> <span style="font-size:16px;font-weight:500;">/ <span id="kpi-total-buses"><?php echo $total_buses; ?></span></span></div>
             <div class="stat-desc">Buses currently active</div>
         </div>
 
@@ -197,8 +230,8 @@ $buses_on_journey = $pdo->query("
                 <div class="stat-title">Ongoing Trips</div>
                 <div class="stat-icon"><i data-lucide="map"></i></div>
             </div>
-            <div class="stat-value"><?php echo $ongoing_trips; ?></div>
-            <div class="stat-desc">Out of <?php echo $trips_today; ?> total today</div>
+            <div class="stat-value" id="kpi-ongoing-trips"><?php echo $ongoing_trips; ?></div>
+            <div class="stat-desc">Out of <span id="kpi-trips-today"><?php echo $trips_today; ?></span> total today</div>
         </div>
 
         <!-- 3 -->
@@ -207,18 +240,18 @@ $buses_on_journey = $pdo->query("
                 <div class="stat-title">Staff Available</div>
                 <div class="stat-icon"><i data-lucide="users"></i></div>
             </div>
-            <div class="stat-value" style="color:#1e293b;"><?php echo $available_drivers; ?> <span style="font-size:16px;font-weight:500;color:#94a3b8;">/ <?php echo $total_drivers; ?></span></div>
+            <div class="stat-value" style="color:#1e293b;"><span id="kpi-avail-drivers"><?php echo $available_drivers; ?></span> <span style="font-size:16px;font-weight:500;color:#94a3b8;">/ <span id="kpi-total-drivers"><?php echo $total_drivers; ?></span></span></div>
             <div class="stat-desc">Drivers unassigned</div>
         </div>
 
         <!-- 4 -->
-        <div class="stat-card <?php echo $maint_overdue > 0 ? 'danger' : 'warning'; ?> col-span-3">
+        <div class="stat-card <?php echo $maint_overdue > 0 ? 'danger' : 'warning'; ?> col-span-3" id="kpi-maint-card">
             <div class="stat-header">
                 <div class="stat-title">Maintenance Alerts</div>
                 <div class="stat-icon"><i data-lucide="alert-triangle"></i></div>
             </div>
-            <div class="stat-value"><?php echo $maint_overdue > 0 ? $maint_overdue : $maint_due; ?></div>
-            <div class="stat-desc"><?php echo $maint_overdue > 0 ? 'Overdue tasks!' : 'Upcoming tasks'; ?></div>
+            <div class="stat-value" id="kpi-maint-val"><?php echo $maint_overdue > 0 ? $maint_overdue : $maint_due; ?></div>
+            <div class="stat-desc" id="kpi-maint-desc"><?php echo $maint_overdue > 0 ? 'Overdue tasks!' : 'Upcoming tasks'; ?></div>
         </div>
     </div>
 
@@ -231,8 +264,14 @@ $buses_on_journey = $pdo->query("
             <!-- Live On Journey -->
             <div class="panel">
                 <div class="panel-header">
-                    <div class="panel-title"><i data-lucide="activity" style="color:#10b981;"></i> Live: Buses On Journey</div>
-                    <span class="pill ongoing"><?php echo count($buses_on_journey); ?> Active</span>
+                    <div class="panel-title"><span class="live-dot"></span><i data-lucide="activity" style="color:#10b981;"></i> Live: Buses On Journey</div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="pill ongoing" id="boj-count"><?php echo count($buses_on_journey); ?> Active</span>
+                        <button class="dash-refresh-btn" id="dash-refresh-btn" onclick="refreshDashboard()" title="Refresh now">
+                            <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i> Refresh
+                        </button>
+                        <span class="dash-last-updated" id="dash-last-updated"></span>
+                    </div>
                 </div>
                 <div class="panel-body">
                     <?php if (count($buses_on_journey) > 0): ?>
@@ -245,7 +284,7 @@ $buses_on_journey = $pdo->query("
                                 <th style="background:transparent;">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="boj-tbody">
                             <?php foreach($buses_on_journey as $boj): ?>
                             <tr>
                                 <td style="font-weight:600;"><?php echo htmlspecialchars($boj['bus_number']); ?></td>
@@ -257,7 +296,7 @@ $buses_on_journey = $pdo->query("
                         </tbody>
                     </table>
                     <?php else: ?>
-                    <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
+                    <div id="boj-empty" style="text-align: center; padding: 40px 0; color: #94a3b8;">
                         <i data-lucide="coffee" style="width:48px; height:48px; opacity:0.5; margin-bottom:12px;"></i>
                         <p>No buses are currently on a journey.</p>
                     </div>
@@ -273,9 +312,9 @@ $buses_on_journey = $pdo->query("
                 </div>
                 <div class="panel-body">
                     <?php if(count($latest_trips) > 0): ?>
-                    <ul class="feed-list">
+                    <ul class="feed-list" id="recent-trips-feed">
                         <?php foreach($latest_trips as $lt): ?>
-                        <li class="feed-item">
+                        <li class="feed-item" data-trip-id="<?php echo $lt['id']; ?>">
                             <div class="feed-main">
                                 <div class="feed-title">Bus <?php echo htmlspecialchars($lt['bus_number'] ?? 'Unknown'); ?> — <?php echo htmlspecialchars($lt['route_name'] ?? 'Unknown Route'); ?></div>
                                 <div class="feed-sub">Driver: <?php echo htmlspecialchars($lt['driver_name'] ?? 'Unassigned'); ?> • <?php echo date('M d, g:i A', strtotime($lt['start_time'])); ?></div>
@@ -310,18 +349,18 @@ $buses_on_journey = $pdo->query("
                     ?>
                     
                     <div class="prog-container">
-                        <div class="prog-header"><span>Completed (<?php echo $completed_trips; ?>)</span> <span><?php echo $pct_comp; ?>%</span></div>
-                        <div class="prog-bar-bg"><div class="prog-bar-fill bg-green" style="width:<?php echo $pct_comp; ?>%"></div></div>
+                        <div class="prog-header"><span>Completed (<span id="prog-comp-n"><?php echo $completed_trips; ?></span>)</span> <span id="prog-comp-pct"><?php echo $pct_comp; ?>%</span></div>
+                        <div class="prog-bar-bg"><div class="prog-bar-fill bg-green" id="prog-comp-bar" style="width:<?php echo $pct_comp; ?>%"></div></div>
                     </div>
                     
                     <div class="prog-container">
-                        <div class="prog-header"><span>Ongoing (<?php echo $ongoing_trips; ?>)</span> <span><?php echo $pct_ong; ?>%</span></div>
-                        <div class="prog-bar-bg"><div class="prog-bar-fill bg-blue" style="width:<?php echo $pct_ong; ?>%"></div></div>
+                        <div class="prog-header"><span>Ongoing (<span id="prog-ong-n"><?php echo $ongoing_trips; ?></span>)</span> <span id="prog-ong-pct"><?php echo $pct_ong; ?>%</span></div>
+                        <div class="prog-bar-bg"><div class="prog-bar-fill bg-blue" id="prog-ong-bar" style="width:<?php echo $pct_ong; ?>%"></div></div>
                     </div>
 
                     <div class="prog-container">
-                        <div class="prog-header"><span>Scheduled (<?php echo $scheduled_trips_today; ?>)</span> <span><?php echo $pct_sch; ?>%</span></div>
-                        <div class="prog-bar-bg"><div class="prog-bar-fill bg-yellow" style="width:<?php echo $pct_sch; ?>%"></div></div>
+                        <div class="prog-header"><span>Scheduled (<span id="prog-sch-n"><?php echo $scheduled_trips_today; ?></span>)</span> <span id="prog-sch-pct"><?php echo $pct_sch; ?>%</span></div>
+                        <div class="prog-bar-bg"><div class="prog-bar-fill bg-yellow" id="prog-sch-bar" style="width:<?php echo $pct_sch; ?>%"></div></div>
                     </div>
                     
                     <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
@@ -441,5 +480,227 @@ $buses_on_journey = $pdo->query("
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 </style>
+
+<!-- Dashboard toast -->
+<div id="dash-toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+//  Dashboard AJAX Live Refresh
+// ════════════════════════════════════════════════════════════════════════
+var DASH_INTERVAL = 30000; // 30 seconds
+var PILL_CLASSES  = ['ongoing','scheduled','completed','cancelled'];
+
+function refreshDashboard() {
+    var $btn = $('#dash-refresh-btn');
+    $btn.addClass('spinning').prop('disabled', true);
+
+    $.ajax({
+        url: 'ajax_handlers.php',
+        method: 'GET',
+        data: { action: 'ajax_dashboard_stats' },
+        dataType: 'json',
+        success: function(res) {
+            if (!res.success) return;
+
+            if (res.role === 'admin' || res.role === 'fleet_manager') {
+                updateAdminDashboard(res);
+            } else if (res.role === 'driver' || res.role === 'conductor') {
+                updateDriverDashboard(res);
+            }
+
+            // Timestamp
+            var now = new Date();
+            var hh = String(now.getHours()).padStart(2,'0');
+            var mm = String(now.getMinutes()).padStart(2,'0');
+            var ss = String(now.getSeconds()).padStart(2,'0');
+            $('#dash-last-updated').text(hh+':'+mm+':'+ss);
+        },
+        error: function() {
+            showDashToast('Refresh failed — will retry.', 'info');
+        },
+        complete: function() {
+            setTimeout(function() {
+                $btn.removeClass('spinning').prop('disabled', false);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 600);
+        }
+    });
+}
+
+// ── Admin / Fleet Manager view ────────────────────────────────────────────
+function updateAdminDashboard(res) {
+    var k = res.kpi;
+    var p = res.progress;
+
+    // KPI numbers — animate only if changed
+    animateNum('#kpi-active-buses', k.active_buses);
+    animateNum('#kpi-total-buses',  k.total_buses);
+    animateNum('#kpi-ongoing-trips',k.ongoing_trips);
+    animateNum('#kpi-trips-today',  k.trips_today);
+    animateNum('#kpi-avail-drivers',k.available_drivers);
+    animateNum('#kpi-total-drivers',k.total_drivers);
+
+    // Maintenance card
+    var maintVal  = k.maint_overdue > 0 ? k.maint_overdue : k.maint_due;
+    var maintDesc = k.maint_overdue > 0 ? 'Overdue tasks!' : 'Upcoming tasks';
+    var maintCls  = k.maint_overdue > 0 ? 'danger' : 'warning';
+    var $mc = $('#kpi-maint-card');
+    $mc.removeClass('danger warning').addClass(maintCls);
+    animateNum('#kpi-maint-val', maintVal);
+    $('#kpi-maint-desc').text(maintDesc);
+
+    // Progress bars (animate width)
+    updateProgress('#prog-comp-n','#prog-comp-pct','#prog-comp-bar', p.completed, p.pct_comp);
+    updateProgress('#prog-ong-n', '#prog-ong-pct', '#prog-ong-bar',  p.ongoing,   p.pct_ong);
+    updateProgress('#prog-sch-n', '#prog-sch-pct', '#prog-sch-bar',  p.scheduled, p.pct_sch);
+
+    // Buses on journey
+    updateBOJ(res.buses_on_journey);
+
+    // Recent trips feed
+    updateFeed(res.latest_trips);
+}
+
+// ── Driver / Conductor ────────────────────────────────────────────────────
+function updateDriverDashboard(res) {
+    // Update trip pills in Today's Schedule
+    if (res.my_trips) {
+        res.my_trips.forEach(function(t) {
+            var $li = $('#driver-feed li[data-trip-id="' + t.id + '"]');
+            if (!$li.length) return;
+            var $pill = $li.find('.pill');
+            var curClass = PILL_CLASSES.find(function(c){ return $pill.hasClass(c); });
+            if (curClass !== t.status) {
+                $pill.fadeOut(200, function() {
+                    $pill.removeClass(PILL_CLASSES.join(' ')).addClass(t.status).text(ucFirst(t.status)).fadeIn(300);
+                });
+            }
+        });
+    }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function animateNum(selector, newVal) {
+    var $el  = $(selector);
+    var curr = parseInt($el.text(), 10);
+    if (isNaN(curr) || curr === newVal) return; // no change, skip
+    $el.addClass('updated');
+    setTimeout(function() { $el.removeClass('updated'); }, 600);
+    $({ v: curr }).animate({ v: newVal }, {
+        duration: 500, easing: 'swing',
+        step: function() { $el.text(Math.round(this.v)); },
+        complete: function() { $el.text(newVal); }
+    });
+}
+
+function updateProgress(nSel, pctSel, barSel, n, pct) {
+    $(nSel).text(n);
+    $(pctSel).text(pct + '%');
+    $(barSel).animate({ width: pct + '%' }, 600);
+}
+
+function updateBOJ(buses) {
+    var $tbody = $('#boj-tbody');
+    var $empty = $('#boj-empty');
+    var $table = $tbody.closest('table');
+    var $count = $('#boj-count');
+
+    $count.text(buses.length + ' Active');
+
+    if (buses.length === 0) {
+        $table.hide();
+        if ($empty.length) $empty.show();
+        return;
+    }
+
+    if ($empty.length) $empty.hide();
+    $table.show();
+
+    var html = '';
+    buses.forEach(function(b) {
+        html +=
+            '<tr>' +
+            '<td style="font-weight:600;">' + escHtml(b.bus_number) + '</td>' +
+            '<td>' + escHtml(b.route_name) + '</td>' +
+            '<td>' + escHtml(b.driver_name || '—') + '</td>' +
+            '<td><span style="display:inline-flex;align-items:center;gap:6px;color:#10b981;font-weight:600;font-size:12px;">'+
+              '<span style="width:8px;height:8px;border-radius:50%;background:#10b981;animation:pulse 2s infinite;"></span> Moving</span></td>' +
+            '</tr>';
+    });
+
+    // Only re-render if something actually changed
+    if ($tbody.html().trim() !== html) {
+        $tbody.fadeOut(150, function() {
+            $tbody.html(html).fadeIn(250);
+        });
+    }
+}
+
+function updateFeed(trips) {
+    var $feed = $('#recent-trips-feed');
+    if (!$feed.length) return;
+
+    // Just update pills on existing rows; insert new rows at top if they don't exist
+    trips.forEach(function(t) {
+        var $li = $feed.find('li[data-trip-id="' + t.id + '"]');
+        if ($li.length) {
+            var $pill = $li.find('.pill');
+            var curCls = PILL_CLASSES.find(function(c){ return $pill.hasClass(c); });
+            if (curCls !== t.status) {
+                $pill.fadeOut(200, function() {
+                    $pill.removeClass(PILL_CLASSES.join(' '))
+                         .addClass(t.status)
+                         .text(ucFirst(t.status))
+                         .fadeIn(300);
+                });
+            }
+        } else {
+            // New trip — prepend
+            var html =
+                '<li class="feed-item" data-trip-id="' + t.id + '">' +
+                '<div class="feed-main">' +
+                  '<div class="feed-title">Bus ' + escHtml(t.bus_number || 'Unknown') + ' — ' + escHtml(t.route_name || 'Unknown Route') + '</div>' +
+                  '<div class="feed-sub">Driver: ' + escHtml(t.driver_name || 'Unassigned') + ' • ' + escHtml(t.start_time_fmt) + '</div>' +
+                '</div>' +
+                '<div class="feed-right"><span class="pill ' + t.status + '">' + ucFirst(t.status) + '</span></div>' +
+                '</li>';
+            $feed.prepend($(html).hide().fadeIn(400));
+            // Keep only last 5
+            $feed.find('li:gt(4)').remove();
+        }
+    });
+}
+
+function escHtml(str) {
+    return $('<div>').text(str || '').html();
+}
+function ucFirst(str) {
+    return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+}
+
+function showDashToast(msg, type) {
+    var $t = $('#dash-toast');
+    $t.removeClass('info success').addClass(type).text(msg);
+    $t.stop(true).css({ display: 'block', opacity: 0 })
+      .animate({ opacity: 1 }, 250);
+    clearTimeout(window._dashToastTimer);
+    window._dashToastTimer = setTimeout(function() {
+        $t.animate({ opacity: 0 }, 400, function() { $t.hide(); });
+    }, 3000);
+}
+
+$(function() {
+    // Show initial timestamp
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2,'0');
+    var mm = String(now.getMinutes()).padStart(2,'0');
+    var ss = String(now.getSeconds()).padStart(2,'0');
+    $('#dash-last-updated').text(hh+':'+mm+':'+ss);
+
+    // Start auto-refresh
+    setInterval(refreshDashboard, DASH_INTERVAL);
+});
+</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
